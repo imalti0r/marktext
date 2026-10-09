@@ -1,0 +1,45 @@
+name: Linux ARM64 Build
+
+# Community build: Linux arm64 packages on the free ubuntu-24.04-arm runner.
+# Upstream CI only builds linux x64, so this fills the gap for arm64 hosts.
+on:
+  workflow_dispatch:
+
+jobs:
+  build-linux-arm64:
+    runs-on: ubuntu-24.04-arm
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Install Linux Build Dependencies
+        run: sudo apt-get update && sudo apt-get install -y icnsutils graphicsmagick xz-utils libx11-dev libxkbfile-dev gnome-keyring libsecret-1-dev libfontconfig-dev rpm
+
+      - uses: ./.github/actions/setup
+
+      - name: Run postinstall
+        run: pnpm tsx scripts/postinstall.ts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          npm_config_user_agent: 'pnpm'
+          USE_ELECTRON_CLANG: '0'
+
+      # snap target needs snapcraft, which is unreliable on the arm runner;
+      # AppImage/deb/rpm/tar.gz cover the common arm64 use cases.
+      - name: Build linux arm64 packages
+        run: pnpm --filter marktext exec electron-builder --linux AppImage deb rpm tar.gz --arm64 --publish never
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: marktext-linux-arm64
+          retention-days: 7
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.rpm
+            dist/*.tar.gz
+          if-no-files-found: error
