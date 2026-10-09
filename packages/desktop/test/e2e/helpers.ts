@@ -84,6 +84,9 @@ export const launchElectron = async(
     )
   }
   const args = [projectRoot, '--user-data-dir', userDataDir].concat(userArgs)
+  // GitHub runners cap /dev/shm at 64 MB; when Chromium's shared-memory
+  // allocations run into it the renderer comes up blank (no crash, empty body).
+  if (process.platform === 'linux' && process.env.CI) args.push('--disable-dev-shm-usage')
   const env: Record<string, string> = {}
   for (const [k, v] of Object.entries(process.env)) if (v !== undefined) env[k] = v
   if (options.suppressErrorDialog) env.MARKTEXT_ERROR_INTERACTION = '1'
