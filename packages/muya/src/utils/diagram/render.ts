@@ -54,11 +54,18 @@ function applyFinalizations(target: HTMLElement, fallback: string): boolean {
     const media = target.querySelector('svg, img');
     if (!media)
         return false;
-    if (media.tagName.toLowerCase() === 'svg' && !sizeSvg(media))
-        return false;
 
+    // The accessible name does not depend on the diagram's geometry, and the
+    // geometry can arrive well after the element itself: mermaid 12 emits
+    // `width="100%"` synchronously and only adds the `viewBox` once its layout
+    // pass finishes. Publish the name with the media, or a host that asks for
+    // the diagram in that window gets no label at all.
     target.setAttribute('role', 'img');
     target.setAttribute('aria-label', accessibleName(media, fallback));
+
+    // Still unsized: keep observing for the dimensions the viewBox needs.
+    if (media.tagName.toLowerCase() === 'svg' && !sizeSvg(media))
+        return false;
 
     return true;
 }

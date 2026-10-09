@@ -21,10 +21,6 @@ export default [
       // The root config here is desktop-focused; mixing the two surfaces
       // pre-existing website style errors into desktop CI.
       'packages/website/**',
-      // packages/muyajs is the retired engine — nothing imports it any more and
-      // it is deleted after 0.20.0 — so it is not worth linting, nor worth
-      // shaping the rule set around it.
-      'packages/muyajs/**',
       // muya v2 (TS) self-lints with its own antfu-based config
       // (packages/muya/eslint.config.mjs). Different style rules from the
       // marktext-desktop config (4-space indent, semis required, strict
