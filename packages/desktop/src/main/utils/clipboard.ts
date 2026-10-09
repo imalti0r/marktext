@@ -3,20 +3,15 @@ import { clipboard, nativeImage } from 'electron'
 import type { NativeImage } from 'electron'
 import log from 'electron-log'
 
-/**
- * Electron 44 replaced the synchronous `clipboard.readImage()` /
- * `clipboard.readBuffer(format)` accessors with the W3C-style async
- * `clipboard.read()` / `clipboard.has()`. These helpers keep the rest of the
- * main process on a single, migration-friendly surface.
- */
+// Electron 44 replaced the synchronous clipboard accessors with the async W3C
+// API, so the rest of the main process reads through these two helpers.
 
-/** MIME types Electron maps to the OS "copied files" clipboard format. */
+/** Electron maps this MIME type to the OS "copied files" format. */
 const URI_LIST_MIME_TYPE = 'text/uri-list'
 
-/** PNG first: a screenshot round-trip only keeps exact pixels losslessly in PNG. */
+/** PNG first: a screenshot round trip is only lossless as PNG. */
 const IMAGE_MIME_TYPES = ['image/png', 'image/jpeg'] as const
 
-/** Read the clipboard bitmap as a `NativeImage`, or `null` when there is none. */
 export const readClipboardImage = async(): Promise<NativeImage | null> => {
   try {
     const items = await clipboard.read()
@@ -34,13 +29,7 @@ export const readClipboardImage = async(): Promise<NativeImage | null> => {
   return null
 }
 
-/**
- * Resolve the first local file on the clipboard, or `null`.
- *
- * `text/uri-list` is Electron's mapping of the native "copied files" format —
- * `CF_HDROP` on Windows, `NSFilenamesPboardType` on macOS — so this replaces
- * the per-platform raw-format parsing the pre-Electron-44 code needed.
- */
+/** `text/uri-list` covers the raw formats the pre-Electron-44 code read per platform. */
 export const readClipboardFilePath = async(): Promise<string | null> => {
   try {
     const items = await clipboard.read()
@@ -54,7 +43,7 @@ export const readClipboardFilePath = async(): Promise<string | null> => {
       try {
         return fileURLToPath(uri)
       } catch {
-        // Ignore malformed entries and keep looking for a usable path.
+        // Malformed entry: keep looking.
       }
     }
   } catch (err) {

@@ -51,8 +51,7 @@ export default [
   // 3. TS/TSX files: typescript-eslint parser
   {
     files: ['**/*.ts', '**/*.tsx', '**/*.mts', '**/*.cts'],
-    // neostandard scopes its `@stylistic` registration to JS files, so the
-    // `@stylistic/*` overrides below need the plugin declared for TS here.
+    // neostandard only registers `@stylistic` for JS files.
     plugins: { '@stylistic': neostandardPlugins['@stylistic'] },
     languageOptions: {
       parser: tseslint.parser,
@@ -92,8 +91,7 @@ export default [
       'no-extra-semi': 'off',
       '@stylistic/indent': ['error', 2, { SwitchCase: 1, ignoreComments: true }],
       '@stylistic/semi': ['error', 'never'],
-      // @stylistic 5 added a `catch` category; the string form now also
-      // forbids `catch (e)`, which is the style used throughout this repo.
+      // @stylistic 5's `catch` category would otherwise forbid `catch (e)`.
       '@stylistic/space-before-function-paren': [
         'error',
         { anonymous: 'never', named: 'never', asyncArrow: 'never', catch: 'always' }
@@ -131,8 +129,7 @@ export default [
     },
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
-      // `<script setup lang="ts">` needs the TS-aware rule: core `no-unused-vars`
-      // misreads type members (props/emit signatures) as unused bindings.
+      // Core `no-unused-vars` misreads `<script setup>` props/emit type members.
       'no-unused-vars': 'off',
       '@typescript-eslint/no-unused-vars': [
         'warn',

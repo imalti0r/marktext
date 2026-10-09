@@ -43,11 +43,7 @@ describe('finalizeRenderedDiagram — viewBox', () => {
         target.innerHTML = '<svg></svg>';
         await new Promise(resolve => setTimeout(resolve, 0));
         expect(target.querySelector('svg')!.getAttribute('viewBox')).toBeNull();
-        // The name does not wait for the geometry: mermaid 12 adds the viewBox
-        // a layout pass after the <svg> itself lands, and a consumer asking for
-        // the diagram in between still needs a label.
-        expect(target.getAttribute('role')).toBe('img');
-        expect(target.getAttribute('aria-label')).toBe(FALLBACK);
+        expect(target.getAttribute('role')).toBeNull();
 
         const svg = target.querySelector('svg')!;
         svg.setAttribute('width', '300');

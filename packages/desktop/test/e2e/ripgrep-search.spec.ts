@@ -37,7 +37,7 @@ test.describe('Ripgrep IPC streaming', () => {
       try {
         fs.rmSync(fixtureDir, { recursive: true, force: true })
       } catch {
-        // Best-effort cleanup: the fixture may already be gone.
+        // Best-effort cleanup.
       }
     }
   })

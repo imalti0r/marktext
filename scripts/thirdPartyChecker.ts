@@ -29,8 +29,7 @@ const getLicenses = (rootDir, callback) => {
       direct: true,
       excludePackages: workspaceExclusions,
       json: true,
-      // BlueOak-1.0.0 is a permissive, OSI-approved licence that minimatch 10
-      // (and its npm-adjacent siblings) moved to.
+      // OSI-approved, permissive; minimatch 10 moved to it.
       onlyAllow:
         'Unlicense;WTFPL;ISC;MIT;BSD;Apache-2.0;MIT*;Apache;Apache*;BSD*;BlueOak-1.0.0;CC0-1.0;CC-BY-4.0;CC-BY-3.0'
     },

@@ -206,7 +206,7 @@ onMounted(async () => {
     isFullScreen.value = !!fs
     isMaximized.value = !!max
   } catch {
-    // Window state is best-effort; keep the previous values if the query fails.
+    // Best-effort: keep the previous values.
   }
 })
 
