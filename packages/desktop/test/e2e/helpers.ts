@@ -95,8 +95,16 @@ export const launchElectron = async(
     env,
     timeout: 30000
   })
+  // CI discards the app's stdio, so a renderer that never mounts leaves no
+  // trace in the test log.
+  if (process.env.CI) {
+    const proc = app.process()
+    proc.stdout?.on('data', (d) => console.log(`[app:out] ${String(d).trim()}`))
+    proc.stderr?.on('data', (d) => console.log(`[app:err] ${String(d).trim()}`))
+  }
   if (options.suppressErrorDialog) await installRendererErrorCounter(app)
   const page = await app.firstWindow()
+  page.on('crash', () => console.log('[renderer] page crashed'))
   await page.waitForLoadState('domcontentloaded')
   await new Promise((resolve) => setTimeout(resolve, 500))
   return { app, page }
@@ -210,15 +218,24 @@ export const clickMenuById = async(app: ElectronApplication, id: string): Promis
 }
 
 export const waitForEditor = async(page: Page, timeout = 15000): Promise<void> => {
-  await page.waitForSelector('.editor-component', { state: 'attached', timeout })
-  await page.waitForFunction(
-    () => {
-      const el = document.querySelector('.editor-component')
-      return el && el.children.length > 0
-    },
-    null,
-    { timeout }
-  )
+  try {
+    await page.waitForSelector('.editor-component', { state: 'attached', timeout })
+    await page.waitForFunction(
+      () => {
+        const el = document.querySelector('.editor-component')
+        return el && el.children.length > 0
+      },
+      null,
+      { timeout }
+    )
+  } catch (error) {
+    const url = page.url()
+    const body = await page
+      .evaluate(() => document.body?.innerText?.slice(0, 200) ?? '')
+      .catch(() => '<unavailable>')
+    console.log(`[waitForEditor] timed out: url=${url} body=${JSON.stringify(body)}`)
+    throw error
+  }
 }
 
 /**
