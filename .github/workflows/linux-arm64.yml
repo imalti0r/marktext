@@ -25,6 +25,10 @@ jobs:
           npm_config_user_agent: 'pnpm'
           USE_ELECTRON_CLANG: '0'
 
+      # 先编译 main/preload/renderer 生成 out/，electron-builder 只是打包
+      - name: Build app (electron-vite)
+        run: pnpm --filter marktext build
+
       # snap target needs snapcraft, which is unreliable on the arm runner;
       # AppImage/deb/rpm/tar.gz cover the common arm64 use cases.
       - name: Build linux arm64 packages
